@@ -5,16 +5,15 @@
 }
 
 .dashboard-container {
-  min-height: 100vh !important;
-  width: 100% !important;
-  display: grid !important;
-  grid-template-rows: auto 1fr auto auto !important;
-  grid-gap: 20px !important;
-  padding: 20px !important;
-  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%) !important;
-  box-sizing: border-box !important;
-  align-items: center !important;
-  justify-items: center !important;
+  height: 100vh;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+  padding: 20px;
+  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+  box-sizing: border-box;
 
   &::before {
     content: '';
@@ -33,7 +32,6 @@
   width: 100%;
   max-width: 600px;
   text-align: center;
-  grid-row: 1;
 
   .date-text {
     font-family: 'Courier New', monospace;
@@ -53,12 +51,12 @@
 /* 2. Digital Speedometer */
 .speedometer-container {
   position: relative;
-  grid-row: 2;
   display: flex;
   align-items: center;
   justify-content: center;
   width: 100%;
   max-width: 450px;
+  flex: 1;
 }
 
 .speedometer-frame {
@@ -133,7 +131,6 @@
 .odometer-container {
   width: 100%;
   max-width: 600px;
-  grid-row: 3;
 }
 
 .odometer-frame {
@@ -176,7 +173,6 @@
 /* 4. Play/Stop Button */
 .control-container {
   text-align: center;
-  grid-row: 4;
 }
 
 .play-stop-button {
