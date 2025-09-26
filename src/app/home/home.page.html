@@ -6,62 +6,79 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true" class="dashboard-content">
-  <!-- Vehicle Dashboard Style Interface -->
-  <div class="dashboard-container">
+<ion-content [fullscreen]="true" class="ion-padding">
+
+  <ion-grid class="dashboard-grid">
 
     <!-- 1. Date Display -->
-    <div class="date-display">
-      <div class="date-text">{{ currentDate }}</div>
-    </div>
+    <ion-row class="ion-justify-content-center">
+      <ion-col size="12" size-md="8">
+        <ion-card class="date-card">
+          <ion-card-content class="ion-text-center">
+            <h2 class="date-text">{{ currentDate }}</h2>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+    </ion-row>
 
     <!-- 2. Digital Speedometer -->
-    <div class="speedometer-container">
-      <div class="speedometer-frame">
-        <div class="speedometer-display">
-          <div class="speed-value">{{ currentSpeed | number:'1.0-0' }}</div>
-          <div class="speed-unit">KM/H</div>
+    <ion-row class="ion-justify-content-center speedometer-row">
+      <ion-col size="12" size-md="6" class="ion-text-center">
+        <div class="speedometer-frame">
+          <div class="speedometer-display">
+            <div class="speed-value">{{ currentSpeed | number:'1.0-0' }}</div>
+            <div class="speed-unit">KM/H</div>
+          </div>
+          <div class="speedometer-glow" [class.active]="isTracking"></div>
         </div>
-        <div class="speedometer-glow" [class.active]="isTracking"></div>
-      </div>
-    </div>
+      </ion-col>
+    </ion-row>
 
-    <!-- 3. Odometer (Total Kilometers) -->
-    <div class="odometer-container">
-      <div class="odometer-frame">
-        <div class="odometer-label">TOTAL KM</div>
-        <div class="odometer-display">
-          <div class="odometer-digits">{{ totalKilometers | number:'1.1-1' }}</div>
-        </div>
-      </div>
-    </div>
+    <!-- 3. Odometer -->
+    <ion-row class="ion-justify-content-center">
+      <ion-col size="12" size-md="8">
+        <ion-card class="odometer-card">
+          <ion-card-header>
+            <ion-card-subtitle class="ion-text-center">TOTAL KM</ion-card-subtitle>
+          </ion-card-header>
+          <ion-card-content class="ion-text-center">
+            <h1 class="odometer-digits">{{ totalKilometers | number:'1.1-1' }}</h1>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+    </ion-row>
 
-    <!-- 4. Play/Stop Button -->
-    <div class="control-container">
-      <ion-button
-        class="play-stop-button"
-        [class.recording]="isTracking"
-        (click)="toggleTracking()"
-        fill="solid"
-        shape="round"
-        size="large">
-        <ion-icon
-          [name]="isTracking ? 'stop' : 'play'"
-          slot="icon-only">
-        </ion-icon>
-      </ion-button>
-      <div class="control-label">
-        {{ isTracking ? 'PARAR' : 'INICIAR' }}
-      </div>
-    </div>
+    <!-- 4. Control Button -->
+    <ion-row class="ion-justify-content-center">
+      <ion-col size="auto" class="ion-text-center">
+        <ion-button
+          [color]="isTracking ? 'success' : 'danger'"
+          [class.recording]="isTracking"
+          (click)="toggleTracking()"
+          fill="solid"
+          shape="round"
+          size="large"
+          class="control-button">
+          <ion-icon
+            [name]="isTracking ? 'stop' : 'play'"
+            slot="icon-only"
+            size="large">
+          </ion-icon>
+        </ion-button>
+        <p class="control-label">
+          {{ isTracking ? 'PARAR' : 'INICIAR' }}
+        </p>
+      </ion-col>
+    </ion-row>
 
-    <!-- Testing buttons (remove in production) -->
-    <div class="test-controls" style="position: fixed; bottom: 80px; left: 10px; opacity: 0.3;">
-      <button (click)="testSpeed(0)" style="margin: 2px; padding: 5px; font-size: 10px;">0</button>
-      <button (click)="testSpeed(30)" style="margin: 2px; padding: 5px; font-size: 10px;">30</button>
-      <button (click)="testSpeed(60)" style="margin: 2px; padding: 5px; font-size: 10px;">60</button>
-      <button (click)="testSpeed(90)" style="margin: 2px; padding: 5px; font-size: 10px;">90</button>
-    </div>
+  </ion-grid>
 
+  <!-- Testing buttons (remove in production) -->
+  <div class="test-controls">
+    <ion-button size="small" fill="clear" (click)="testSpeed(0)">0</ion-button>
+    <ion-button size="small" fill="clear" (click)="testSpeed(30)">30</ion-button>
+    <ion-button size="small" fill="clear" (click)="testSpeed(60)">60</ion-button>
+    <ion-button size="small" fill="clear" (click)="testSpeed(90)">90</ion-button>
   </div>
+
 </ion-content>

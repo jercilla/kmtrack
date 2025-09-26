@@ -8,6 +8,13 @@ import {
   IonContent,
   IonButton,
   IonIcon,
+  IonGrid,
+  IonRow,
+  IonCol,
+  IonCard,
+  IonCardHeader,
+  IonCardContent,
+  IonCardSubtitle,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { play, stop, speedometer } from 'ionicons/icons';
@@ -20,7 +27,8 @@ import { GpsTrackingService, TrackingSession } from '../services/gps-tracking.se
   standalone: true,
   imports: [
     CommonModule, IonHeader, IonToolbar, IonTitle, IonContent,
-    IonButton, IonIcon
+    IonButton, IonIcon, IonGrid, IonRow, IonCol, IonCard,
+    IonCardHeader, IonCardContent, IonCardSubtitle
   ],
 })
 export class HomePage implements OnInit, OnDestroy {
