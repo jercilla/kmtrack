@@ -1,0 +1,276 @@
+/* Vehicle Dashboard Styles */
+.dashboard-content {
+  --background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+  --color: #ffffff;
+}
+
+.dashboard-container {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+  padding: 20px;
+  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at center, rgba(0, 255, 255, 0.1) 0%, transparent 70%);
+    pointer-events: none;
+  }
+}
+
+/* 1. Date Display */
+.date-display {
+  width: 100%;
+  text-align: center;
+  margin-top: 20px;
+
+  .date-text {
+    font-family: 'Courier New', monospace;
+    font-size: 1.1rem;
+    color: #00ff88;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    text-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+    border: 1px solid rgba(0, 255, 136, 0.3);
+    border-radius: 8px;
+    padding: 10px 20px;
+    background: rgba(0, 255, 136, 0.05);
+  }
+}
+
+/* 2. Digital Speedometer */
+.speedometer-container {
+  position: relative;
+  margin: 30px 0;
+}
+
+.speedometer-frame {
+  position: relative;
+  width: 280px;
+  height: 280px;
+  border: 6px solid #333;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%);
+  box-shadow:
+    inset 0 0 50px rgba(0, 0, 0, 0.8),
+    0 0 30px rgba(0, 255, 255, 0.1),
+    0 0 60px rgba(0, 255, 255, 0.05);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.speedometer-display {
+  text-align: center;
+  z-index: 2;
+
+  .speed-value {
+    font-family: 'Courier New', monospace;
+    font-size: 4.5rem;
+    font-weight: bold;
+    color: #00ffff;
+    text-shadow:
+      0 0 20px rgba(0, 255, 255, 0.8),
+      0 0 40px rgba(0, 255, 255, 0.4);
+    line-height: 1;
+    margin-bottom: 5px;
+  }
+
+  .speed-unit {
+    font-family: 'Courier New', monospace;
+    font-size: 1.2rem;
+    color: #888;
+    letter-spacing: 3px;
+    font-weight: bold;
+  }
+}
+
+.speedometer-glow {
+  position: absolute;
+  top: -10px;
+  left: -10px;
+  right: -10px;
+  bottom: -10px;
+  border-radius: 50%;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0%,
+    rgba(255, 0, 0, 0.3) 50%,
+    transparent 100%
+  );
+  opacity: 0;
+  transition: opacity 0.3s ease;
+
+  &.active {
+    opacity: 1;
+    animation: rotate 2s linear infinite;
+  }
+}
+
+@keyframes rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* 3. Odometer */
+.odometer-container {
+  width: 90%;
+  max-width: 350px;
+  margin: 20px 0;
+}
+
+.odometer-frame {
+  background: linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%);
+  border: 2px solid #444;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow:
+    inset 0 0 20px rgba(0, 0, 0, 0.6),
+    0 0 20px rgba(0, 255, 136, 0.1);
+}
+
+.odometer-label {
+  font-family: 'Courier New', monospace;
+  font-size: 0.9rem;
+  color: #888;
+  text-align: center;
+  letter-spacing: 2px;
+  margin-bottom: 10px;
+  font-weight: bold;
+}
+
+.odometer-display {
+  background: #000;
+  border: 1px solid #333;
+  border-radius: 6px;
+  padding: 15px;
+  text-align: center;
+}
+
+.odometer-digits {
+  font-family: 'Courier New', monospace;
+  font-size: 2.5rem;
+  color: #00ff88;
+  font-weight: bold;
+  text-shadow: 0 0 15px rgba(0, 255, 136, 0.6);
+  letter-spacing: 2px;
+}
+
+/* 4. Play/Stop Button */
+.control-container {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.play-stop-button {
+  --background: linear-gradient(135deg, #ff4444 0%, #cc0000 100%);
+  --background-hover: linear-gradient(135deg, #ff6666 0%, #ff0000 100%);
+  --color: white;
+  width: 100px;
+  height: 100px;
+  --border-radius: 50%;
+  margin-bottom: 15px;
+
+  box-shadow:
+    0 0 30px rgba(255, 68, 68, 0.4),
+    inset 0 2px 10px rgba(255, 255, 255, 0.1);
+
+  transition: all 0.3s ease;
+
+  &.recording {
+    --background: linear-gradient(135deg, #44ff44 0%, #00cc00 100%);
+    --background-hover: linear-gradient(135deg, #66ff66 0%, #00ff00 100%);
+
+    box-shadow:
+      0 0 30px rgba(68, 255, 68, 0.4),
+      inset 0 2px 10px rgba(255, 255, 255, 0.1);
+
+    animation: pulse 1.5s ease-in-out infinite alternate;
+  }
+
+  ion-icon {
+    font-size: 2.5rem;
+  }
+}
+
+@keyframes pulse {
+  from {
+    box-shadow:
+      0 0 30px rgba(68, 255, 68, 0.4),
+      inset 0 2px 10px rgba(255, 255, 255, 0.1);
+  }
+  to {
+    box-shadow:
+      0 0 50px rgba(68, 255, 68, 0.8),
+      inset 0 2px 10px rgba(255, 255, 255, 0.2);
+  }
+}
+
+.control-label {
+  font-family: 'Courier New', monospace;
+  font-size: 1rem;
+  color: #ccc;
+  letter-spacing: 3px;
+  font-weight: bold;
+}
+
+/* Responsive adjustments */
+@media (max-height: 700px) {
+  .speedometer-frame {
+    width: 220px;
+    height: 220px;
+  }
+
+  .speedometer-display .speed-value {
+    font-size: 3.5rem;
+  }
+
+  .odometer-digits {
+    font-size: 2rem;
+  }
+
+  .play-stop-button {
+    width: 80px;
+    height: 80px;
+
+    ion-icon {
+      font-size: 2rem;
+    }
+  }
+}
+
+@media (max-height: 600px) {
+  .dashboard-container {
+    padding: 10px;
+  }
+
+  .date-display {
+    margin-top: 10px;
+  }
+
+  .speedometer-container {
+    margin: 15px 0;
+  }
+
+  .speedometer-frame {
+    width: 180px;
+    height: 180px;
+  }
+
+  .speedometer-display .speed-value {
+    font-size: 2.8rem;
+  }
+
+  .control-container {
+    margin-bottom: 20px;
+  }
+}

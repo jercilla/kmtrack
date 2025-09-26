@@ -1,0 +1,7 @@
+{
+  "name": "kmtrack",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular"
+}
