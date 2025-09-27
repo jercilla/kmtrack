@@ -34,7 +34,7 @@
             <ion-card-subtitle class="ion-text-center">TOTAL KM</ion-card-subtitle>
           </ion-card-header>
           <ion-card-content class="ion-text-center">
-            <h1 class="odometer-digits">{{ totalKilometers | number:'1.1-1' }}</h1>
+            <h1 class="odometer-digits">{{ totalKilometers | number:'1.2-2' }}</h1>
           </ion-card-content>
         </ion-card>
       </ion-col>
@@ -64,10 +64,42 @@
 
   <!-- Testing buttons (remove in production) -->
   <div class="test-controls">
-    <ion-button size="small" fill="clear" (click)="testSpeed(0)">0</ion-button>
-    <ion-button size="small" fill="clear" (click)="testSpeed(30)">30</ion-button>
-    <ion-button size="small" fill="clear" (click)="testSpeed(60)">60</ion-button>
-    <ion-button size="small" fill="clear" (click)="testSpeed(90)">90</ion-button>
+    <div class="test-label">GPS Simulation (km/h):</div>
+    <ion-button
+      size="small"
+      [fill]="simulatedSpeed === 0 ? 'solid' : 'clear'"
+      [color]="simulatedSpeed === 0 ? 'medium' : undefined"
+      (click)="testSpeed(0)">
+      STOP
+    </ion-button>
+    <ion-button
+      size="small"
+      [fill]="simulatedSpeed === 30 ? 'solid' : 'clear'"
+      [color]="simulatedSpeed === 30 ? 'primary' : undefined"
+      (click)="testSpeed(30)">
+      30
+    </ion-button>
+    <ion-button
+      size="small"
+      [fill]="simulatedSpeed === 60 ? 'solid' : 'clear'"
+      [color]="simulatedSpeed === 60 ? 'primary' : undefined"
+      (click)="testSpeed(60)">
+      60
+    </ion-button>
+    <ion-button
+      size="small"
+      [fill]="simulatedSpeed === 90 ? 'solid' : 'clear'"
+      [color]="simulatedSpeed === 90 ? 'primary' : undefined"
+      (click)="testSpeed(90)">
+      90
+    </ion-button>
+    <ion-button
+      size="small"
+      fill="clear"
+      color="warning"
+      (click)="resetStorage()">
+      RESET
+    </ion-button>
   </div>
 
 </ion-content>

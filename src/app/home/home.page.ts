@@ -37,6 +37,7 @@ export class HomePage implements OnInit, OnDestroy {
   totalKilometers = 0;
   isTracking = false;
   currentSession: TrackingSession | null = null;
+  simulatedSpeed = 0;
 
   private subscription?: Subscription;
 
@@ -136,6 +137,27 @@ export class HomePage implements OnInit, OnDestroy {
 
   // For testing purposes - remove in production
   testSpeed(speed: number) {
+    console.log(`HomePage: Testing speed ${speed}, tracking: ${this.isTracking}`);
+    this.simulatedSpeed = speed;
     this.gpsService.simulateSpeed(speed);
+  }
+
+  resetStorage() {
+    // Reset GPS service completely (clears lastPosition!)
+    this.gpsService.resetGpsState();
+
+    // Reset km service properly
+    this.kmService.resetAll();
+
+    // Clear all storage completely
+    localStorage.clear();
+    sessionStorage.clear();
+
+    // Reset local component state
+    this.totalKilometers = 0;
+    this.simulatedSpeed = 0;
+
+    // Force hard reload with cache clear
+    window.location.reload();
   }
 }

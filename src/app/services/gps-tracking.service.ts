@@ -34,6 +34,12 @@ export class GpsTrackingService {
   private lastPosition: GpsData | null = null;
   private currentSession: TrackingSession | null = null;
 
+  // GPS Simulation properties
+  private simulationTimer: any = null;
+  private simulationSpeed = 0; // km/h
+  private simulationPosition = { lat: 40.4168, lng: -3.7038 }; // Madrid center
+  private simulationDirection = 0; // degrees (0 = North)
+
   constructor() {}
 
   async startTracking(): Promise<boolean> {
@@ -88,6 +94,9 @@ export class GpsTrackingService {
       this.watchId = null;
     }
 
+    // Stop GPS simulation
+    this.stopGpsSimulation();
+
     if (this.currentSession) {
       this.currentSession.endTime = Date.now();
       const session = { ...this.currentSession };
@@ -126,7 +135,10 @@ export class GpsTrackingService {
       // Calculate distance if we have a previous position
       if (this.lastPosition) {
         const distance = this.calculateDistance(this.lastPosition, gpsData);
+        console.log(`Distance calculation: from (${this.lastPosition.latitude}, ${this.lastPosition.longitude}) to (${gpsData.latitude}, ${gpsData.longitude}) = ${distance.toFixed(6)} km`);
+
         this.currentSession.totalDistance += distance;
+        console.log(`Total distance updated: ${this.currentSession.totalDistance.toFixed(6)} km`);
 
         // Update max speed
         if (gpsData.speed > this.currentSession.maxSpeed) {
@@ -138,6 +150,8 @@ export class GpsTrackingService {
         if (sessionDuration > 0) {
           this.currentSession.averageSpeed = this.currentSession.totalDistance / sessionDuration;
         }
+      } else {
+        console.log('No previous position for distance calculation');
       }
 
       this.currentSessionSubject.next({ ...this.currentSession });
@@ -182,41 +196,91 @@ export class GpsTrackingService {
     return Date.now().toString(36) + Math.random().toString(36).substr(2);
   }
 
-  // Mock speed for testing (remove in production)
-  simulateSpeed(speed: number): void {
-    this.currentSpeedSubject.next(speed);
-
-    // If tracking and speed > 0, add distance directly for testing
-    if (this.isTrackingSubject.value && this.currentSession && speed > 0) {
-      // Simple simulation: add 0.01 km (10 meters) per speed call for testing
-      const distanceIncrement = 0.01; // 10 meters in km
-      this.currentSession.totalDistance += distanceIncrement;
-
-      // Update max speed
-      if (speed > this.currentSession.maxSpeed) {
-        this.currentSession.maxSpeed = speed;
-      }
-
-      // Update average speed (simplified)
-      const sessionDuration = (Date.now() - this.currentSession.startTime) / 1000 / 3600; // hours
-      if (sessionDuration > 0) {
-        this.currentSession.averageSpeed = this.currentSession.totalDistance / sessionDuration;
-      }
-
-      // Create a mock position for this simulation
-      const mockPosition: GpsData = {
-        latitude: 40.4168 + (Math.random() * 0.001), // Small random movement
-        longitude: -3.7038 + (Math.random() * 0.001),
-        speed: speed,
-        timestamp: Date.now()
-      };
-
-      this.currentSession.positions.push(mockPosition);
-      this.lastPosition = mockPosition;
-
-      // Notify subscribers
-      this.currentSessionSubject.next({ ...this.currentSession });
+  // Method to reset GPS state completely
+  resetGpsState(): void {
+    // Stop any active tracking
+    if (this.watchId !== null) {
+      navigator.geolocation.clearWatch(this.watchId);
+      this.watchId = null;
     }
+
+    // Stop GPS simulation
+    this.stopGpsSimulation();
+
+    // Clear GPS state - THIS IS THE KEY!
+    this.lastPosition = null;
+    this.currentSession = null;
+    this.currentSessionSubject.next(null);
+    this.isTrackingSubject.next(false);
+    this.currentSpeedSubject.next(0);
+
+    // Reset simulation position to default
+    this.simulationPosition = { lat: 40.4168, lng: -3.7038 };
+    this.simulationDirection = 0;
+  }
+
+  // GPS Simulation for testing
+  simulateSpeed(speed: number): void {
+    this.simulationSpeed = speed;
+
+    if (speed > 0 && this.isTrackingSubject.value) {
+      this.startGpsSimulation();
+    } else {
+      this.stopGpsSimulation();
+    }
+  }
+
+  private startGpsSimulation(): void {
+    if (this.simulationTimer) {
+      clearInterval(this.simulationTimer);
+    }
+
+    // Update GPS position every second
+    this.simulationTimer = setInterval(() => {
+      if (this.simulationSpeed > 0 && this.isTrackingSubject.value) {
+        this.updateSimulatedPosition();
+      }
+    }, 1000);
+  }
+
+  private stopGpsSimulation(): void {
+    if (this.simulationTimer) {
+      clearInterval(this.simulationTimer);
+      this.simulationTimer = null;
+    }
+    this.simulationSpeed = 0;
+  }
+
+  private updateSimulatedPosition(): void {
+    console.log(`GPS Simulation: Updating position at ${this.simulationSpeed} km/h`);
+
+    // Calculate distance moved in 1 second at current speed
+    const distancePerSecond = this.simulationSpeed / 3600; // km per second
+
+    // Convert distance to degrees (rough approximation: 1 degree ≈ 111 km)
+    const deltaLat = (distancePerSecond / 111) * Math.cos(this.degToRad(this.simulationDirection));
+    const deltaLng = (distancePerSecond / 111) * Math.sin(this.degToRad(this.simulationDirection)) /
+                     Math.cos(this.degToRad(this.simulationPosition.lat));
+
+    // Update position
+    this.simulationPosition.lat += deltaLat;
+    this.simulationPosition.lng += deltaLng;
+
+    // Slightly vary direction to simulate realistic movement
+    this.simulationDirection += (Math.random() - 0.5) * 10; // ±5 degrees variation
+
+    // Create GPS data that matches real GPS format
+    const simulatedGpsData: GpsData = {
+      latitude: this.simulationPosition.lat,
+      longitude: this.simulationPosition.lng,
+      speed: this.simulationSpeed,
+      timestamp: Date.now()
+    };
+
+    console.log(`GPS Simulation: New position`, simulatedGpsData);
+
+    // Process through the same pipeline as real GPS
+    this.handleGpsDataUpdate(simulatedGpsData);
   }
 
 }

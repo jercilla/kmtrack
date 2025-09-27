@@ -77,6 +77,12 @@ export class KmTrackingService {
     return this.entriesSubject.value.reduce((total, entry) => total + entry.kilometers, 0);
   }
 
+  // Method to completely reset all data
+  resetAll(): void {
+    localStorage.removeItem(this.storageKey);
+    this.entriesSubject.next([]);
+  }
+
   getKmByType(): Record<string, number> {
     const entries = this.entriesSubject.value;
     return entries.reduce((acc, entry) => {
