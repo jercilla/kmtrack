@@ -60,7 +60,13 @@ export class HomePage implements OnInit, OnDestroy {
       this.gpsService.isTracking$,
       this.gpsService.currentSession$
     ]).subscribe(([entries, speed, tracking, session]) => {
-      this.totalKilometers = this.kmService.getTotalKm();
+      // If tracking and session exists, show current session distance + saved km
+      // Otherwise just show saved km
+      if (tracking && session) {
+        this.totalKilometers = this.kmService.getTotalKm() + session.totalDistance;
+      } else {
+        this.totalKilometers = this.kmService.getTotalKm();
+      }
       this.currentSpeed = speed;
       this.isTracking = tracking;
       this.currentSession = session;

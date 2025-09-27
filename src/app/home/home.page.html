@@ -1,11 +1,3 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>
-      KMTrack
-    </ion-title>
-  </ion-toolbar>
-</ion-header>
-
 <ion-content [fullscreen]="true" class="ion-padding">
 
   <ion-grid class="dashboard-grid">
@@ -52,7 +44,7 @@
     <ion-row class="ion-justify-content-center">
       <ion-col size="auto" class="ion-text-center">
         <ion-button
-          [color]="isTracking ? 'success' : 'danger'"
+          [color]="isTracking ? 'danger' : 'success'"
           [class.recording]="isTracking"
           (click)="toggleTracking()"
           fill="solid"

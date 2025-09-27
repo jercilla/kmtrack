@@ -38,17 +38,7 @@ export class GpsTrackingService {
 
   async startTracking(): Promise<boolean> {
     try {
-      if (!navigator.geolocation) {
-        throw new Error('Geolocation not supported');
-      }
-
-      // Request permission
-      const permission = await navigator.permissions.query({ name: 'geolocation' });
-      if (permission.state === 'denied') {
-        throw new Error('Geolocation permission denied');
-      }
-
-      // Start session
+      // Start session (always create session regardless of GPS availability)
       this.currentSession = {
         id: this.generateId(),
         startTime: Date.now(),
@@ -59,23 +49,34 @@ export class GpsTrackingService {
       };
 
       this.currentSessionSubject.next(this.currentSession);
-
-      // Start watching position
-      this.watchId = navigator.geolocation.watchPosition(
-        (position) => this.handlePositionUpdate(position),
-        (error) => this.handlePositionError(error),
-        {
-          enableHighAccuracy: true,
-          timeout: 5000,
-          maximumAge: 1000
-        }
-      );
-
       this.isTrackingSubject.next(true);
+
+      // Try to start real GPS if available
+      if (navigator.geolocation) {
+        try {
+          // Request permission
+          const permission = await navigator.permissions.query({ name: 'geolocation' });
+          if (permission.state !== 'denied') {
+            // Start watching position
+            this.watchId = navigator.geolocation.watchPosition(
+              (position) => this.handlePositionUpdate(position),
+              (error) => this.handlePositionError(error),
+              {
+                enableHighAccuracy: true,
+                timeout: 5000,
+                maximumAge: 1000
+              }
+            );
+          }
+        } catch (gpsError) {
+          // GPS failed, using simulation only
+        }
+      }
+
       return true;
 
     } catch (error) {
-      console.error('Error starting GPS tracking:', error);
+      console.error('Error starting tracking session:', error);
       this.stopTracking();
       return false;
     }
@@ -113,7 +114,11 @@ export class GpsTrackingService {
       timestamp: position.timestamp
     };
 
-    this.currentSpeedSubject.next(speed);
+    this.handleGpsDataUpdate(gpsData);
+  }
+
+  private handleGpsDataUpdate(gpsData: GpsData): void {
+    this.currentSpeedSubject.next(gpsData.speed);
 
     if (this.currentSession) {
       this.currentSession.positions.push(gpsData);
@@ -124,8 +129,8 @@ export class GpsTrackingService {
         this.currentSession.totalDistance += distance;
 
         // Update max speed
-        if (speed > this.currentSession.maxSpeed) {
-          this.currentSession.maxSpeed = speed;
+        if (gpsData.speed > this.currentSession.maxSpeed) {
+          this.currentSession.maxSpeed = gpsData.speed;
         }
 
         // Calculate average speed
@@ -180,5 +185,38 @@ export class GpsTrackingService {
   // Mock speed for testing (remove in production)
   simulateSpeed(speed: number): void {
     this.currentSpeedSubject.next(speed);
+
+    // If tracking and speed > 0, add distance directly for testing
+    if (this.isTrackingSubject.value && this.currentSession && speed > 0) {
+      // Simple simulation: add 0.01 km (10 meters) per speed call for testing
+      const distanceIncrement = 0.01; // 10 meters in km
+      this.currentSession.totalDistance += distanceIncrement;
+
+      // Update max speed
+      if (speed > this.currentSession.maxSpeed) {
+        this.currentSession.maxSpeed = speed;
+      }
+
+      // Update average speed (simplified)
+      const sessionDuration = (Date.now() - this.currentSession.startTime) / 1000 / 3600; // hours
+      if (sessionDuration > 0) {
+        this.currentSession.averageSpeed = this.currentSession.totalDistance / sessionDuration;
+      }
+
+      // Create a mock position for this simulation
+      const mockPosition: GpsData = {
+        latitude: 40.4168 + (Math.random() * 0.001), // Small random movement
+        longitude: -3.7038 + (Math.random() * 0.001),
+        speed: speed,
+        timestamp: Date.now()
+      };
+
+      this.currentSession.positions.push(mockPosition);
+      this.lastPosition = mockPosition;
+
+      // Notify subscribers
+      this.currentSessionSubject.next({ ...this.currentSession });
+    }
   }
+
 }
