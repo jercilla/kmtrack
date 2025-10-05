@@ -142,6 +142,14 @@ export class HomePage implements OnInit, OnDestroy {
     }
   }
 
+  async retryGpsPermission() {
+    // Request GPS permission (will trigger browser prompt)
+    await this.gpsService.requestGpsPermission();
+
+    // If permission is now granted, the observable will update automatically
+    // and gpsPermissionDenied will become false, showing the dashboard
+  }
+
   // For testing purposes - remove in production
   testSpeed(speed: number) {
     console.log(`HomePage: Testing speed ${speed}, tracking: ${this.isTracking}`);

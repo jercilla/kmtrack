@@ -53,11 +53,54 @@ export class GpsTrackingService {
 
     try {
       const permission = await navigator.permissions.query({ name: 'geolocation' });
-      this.gpsPermissionDeniedSubject.next(permission.state === 'denied');
+
+      if (permission.state === 'denied') {
+        this.gpsPermissionDeniedSubject.next(true);
+      } else if (permission.state === 'granted') {
+        this.gpsPermissionDeniedSubject.next(false);
+      } else {
+        // State is 'prompt' - user hasn't decided yet
+        this.gpsPermissionDeniedSubject.next(false);
+      }
     } catch (permError) {
       // Permission API not supported, assume available
       this.gpsPermissionDeniedSubject.next(false);
     }
+  }
+
+  // Request GPS permission explicitly (triggers browser prompt)
+  async requestGpsPermission(): Promise<boolean> {
+    if (!navigator.geolocation) {
+      this.gpsPermissionDeniedSubject.next(true);
+      return false;
+    }
+
+    return new Promise((resolve) => {
+      // Requesting getCurrentPosition will trigger the browser's permission prompt
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          // Success - permission granted
+          this.gpsPermissionDeniedSubject.next(false);
+          resolve(true);
+        },
+        (error) => {
+          // Error - permission denied or error
+          if (error.code === error.PERMISSION_DENIED) {
+            this.gpsPermissionDeniedSubject.next(true);
+            resolve(false);
+          } else {
+            // Other error, but permission might be granted
+            this.checkGpsPermission();
+            resolve(false);
+          }
+        },
+        {
+          enableHighAccuracy: false,
+          timeout: 5000,
+          maximumAge: 0
+        }
+      );
+    });
   }
 
   async startTracking(): Promise<boolean> {

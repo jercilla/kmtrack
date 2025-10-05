@@ -10,8 +10,15 @@
     <ion-card-content class="ion-text-center">
       <ion-text>
         <p>Esta aplicación necesita acceso a tu ubicación GPS para funcionar correctamente.</p>
-        <p>Por favor, activa los permisos de localización en la configuración de tu navegador o dispositivo.</p>
+        <p>Haz clic en el botón de abajo para permitir el acceso a tu ubicación.</p>
       </ion-text>
+      <ion-button
+        expand="block"
+        color="light"
+        (click)="retryGpsPermission()"
+        class="retry-permission-btn">
+        Activar Ubicación
+      </ion-button>
     </ion-card-content>
   </ion-card>
 
