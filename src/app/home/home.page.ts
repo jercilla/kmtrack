@@ -15,6 +15,7 @@ import {
   IonCardHeader,
   IonCardContent,
   IonCardSubtitle,
+  IonText,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { play, stop, speedometer } from 'ionicons/icons';
@@ -28,7 +29,7 @@ import { GpsTrackingService, TrackingSession } from '../services/gps-tracking.se
   imports: [
     CommonModule, IonHeader, IonToolbar, IonTitle, IonContent,
     IonButton, IonIcon, IonGrid, IonRow, IonCol, IonCard,
-    IonCardHeader, IonCardContent, IonCardSubtitle
+    IonCardHeader, IonCardContent, IonCardSubtitle, IonText
   ],
 })
 export class HomePage implements OnInit, OnDestroy {
@@ -38,6 +39,7 @@ export class HomePage implements OnInit, OnDestroy {
   isTracking = false;
   currentSession: TrackingSession | null = null;
   simulatedSpeed = 0;
+  gpsPermissionDenied = false;
 
   private subscription?: Subscription;
 
@@ -59,8 +61,9 @@ export class HomePage implements OnInit, OnDestroy {
       this.kmService.entries$,
       this.gpsService.currentSpeed$,
       this.gpsService.isTracking$,
-      this.gpsService.currentSession$
-    ]).subscribe(([entries, speed, tracking, session]) => {
+      this.gpsService.currentSession$,
+      this.gpsService.gpsPermissionDenied$
+    ]).subscribe(([entries, speed, tracking, session, permissionDenied]) => {
       // If tracking and session exists, show current session distance + saved km
       // Otherwise just show saved km
       if (tracking && session) {
@@ -71,6 +74,7 @@ export class HomePage implements OnInit, OnDestroy {
       this.currentSpeed = speed;
       this.isTracking = tracking;
       this.currentSession = session;
+      this.gpsPermissionDenied = permissionDenied;
     });
   }
 

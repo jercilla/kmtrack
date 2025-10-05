@@ -1,6 +1,21 @@
 <ion-content [fullscreen]="true" class="ion-padding">
 
-  <ion-grid class="dashboard-grid">
+  <!-- GPS Permission Warning -->
+  <ion-card *ngIf="gpsPermissionDenied" color="warning" class="gps-permission-warning">
+    <ion-card-header>
+      <ion-card-subtitle class="ion-text-center">
+        <strong>Permiso de Ubicación Requerido</strong>
+      </ion-card-subtitle>
+    </ion-card-header>
+    <ion-card-content class="ion-text-center">
+      <ion-text>
+        <p>Esta aplicación necesita acceso a tu ubicación GPS para funcionar correctamente.</p>
+        <p>Por favor, activa los permisos de localización en la configuración de tu navegador o dispositivo.</p>
+      </ion-text>
+    </ion-card-content>
+  </ion-card>
+
+  <ion-grid class="dashboard-grid" [class.hidden]="gpsPermissionDenied">
 
     <!-- 1. Date Display -->
     <ion-row class="ion-justify-content-center">
@@ -16,7 +31,7 @@
     <!-- 2. Digital Speedometer -->
     <ion-row class="ion-justify-content-center speedometer-row">
       <ion-col size="12" size-md="6" class="ion-text-center">
-        <div class="speedometer-frame">
+        <div class="speedometer-frame speed-display">
           <div class="speedometer-display">
             <div class="speed-value">{{ currentSpeed | number:'1.0-0' }}</div>
             <div class="speed-unit">KM/H</div>

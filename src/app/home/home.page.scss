@@ -4,6 +4,25 @@ ion-content {
   --color: #ffffff;
 }
 
+/* GPS Permission Warning */
+.gps-permission-warning {
+  margin-top: 20px;
+  border: 2px solid var(--ion-color-warning);
+
+  ion-card-subtitle strong {
+    font-size: 1.2rem;
+  }
+
+  p {
+    margin: 10px 0;
+    line-height: 1.5;
+  }
+}
+
+.dashboard-grid.hidden {
+  display: none;
+}
+
 .dashboard-grid {
   height: 100%;
   display: flex;

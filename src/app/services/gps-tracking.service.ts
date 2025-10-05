@@ -25,10 +25,12 @@ export class GpsTrackingService {
   private currentSpeedSubject = new BehaviorSubject<number>(0);
   private isTrackingSubject = new BehaviorSubject<boolean>(false);
   private currentSessionSubject = new BehaviorSubject<TrackingSession | null>(null);
+  private gpsPermissionDeniedSubject = new BehaviorSubject<boolean>(false);
 
   currentSpeed$ = this.currentSpeedSubject.asObservable();
   isTracking$ = this.isTrackingSubject.asObservable();
   currentSession$ = this.currentSessionSubject.asObservable();
+  gpsPermissionDenied$ = this.gpsPermissionDeniedSubject.asObservable();
 
   private watchId: number | null = null;
   private lastPosition: GpsData | null = null;
@@ -44,7 +46,24 @@ export class GpsTrackingService {
 
   async startTracking(): Promise<boolean> {
     try {
-      // Start session (always create session regardless of GPS availability)
+      // Check GPS permission first
+      if (navigator.geolocation) {
+        try {
+          // Request permission
+          const permission = await navigator.permissions.query({ name: 'geolocation' });
+          if (permission.state === 'denied') {
+            this.gpsPermissionDeniedSubject.next(true);
+            return false;
+          }
+        } catch (permError) {
+          // Permission API not supported, try anyway
+        }
+      } else {
+        this.gpsPermissionDeniedSubject.next(true);
+        return false;
+      }
+
+      // Start session (only if GPS is available)
       this.currentSession = {
         id: this.generateId(),
         startTime: Date.now(),
@@ -56,34 +75,25 @@ export class GpsTrackingService {
 
       this.currentSessionSubject.next(this.currentSession);
       this.isTrackingSubject.next(true);
+      this.gpsPermissionDeniedSubject.next(false);
 
-      // Try to start real GPS if available
-      if (navigator.geolocation) {
-        try {
-          // Request permission
-          const permission = await navigator.permissions.query({ name: 'geolocation' });
-          if (permission.state !== 'denied') {
-            // Start watching position
-            this.watchId = navigator.geolocation.watchPosition(
-              (position) => this.handlePositionUpdate(position),
-              (error) => this.handlePositionError(error),
-              {
-                enableHighAccuracy: true,
-                timeout: 5000,
-                maximumAge: 1000
-              }
-            );
-          }
-        } catch (gpsError) {
-          // GPS failed, using simulation only
+      // Start watching position
+      this.watchId = navigator.geolocation.watchPosition(
+        (position) => this.handlePositionUpdate(position),
+        (error) => this.handlePositionError(error),
+        {
+          enableHighAccuracy: true,
+          timeout: 5000,
+          maximumAge: 1000
         }
-      }
+      );
 
       return true;
 
     } catch (error) {
       console.error('Error starting tracking session:', error);
       this.stopTracking();
+      this.gpsPermissionDeniedSubject.next(true);
       return false;
     }
   }
@@ -168,6 +178,7 @@ export class GpsTrackingService {
 
     // If it's a serious error, you might want to stop tracking
     if (error.code === error.PERMISSION_DENIED) {
+      this.gpsPermissionDeniedSubject.next(true);
       this.stopTracking();
     }
   }
