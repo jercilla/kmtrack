@@ -40,6 +40,7 @@ export class HomePage implements OnInit, OnDestroy {
   currentSession: TrackingSession | null = null;
   simulatedSpeed = 0;
   gpsPermissionDenied = false;
+  showManualInstructions = false;
 
   private subscription?: Subscription;
 
@@ -149,6 +150,11 @@ export class HomePage implements OnInit, OnDestroy {
     const granted = await this.gpsService.requestGpsPermission();
 
     console.log('HomePage: Permission request result:', granted);
+
+    // If permission was denied again, show manual instructions
+    if (!granted) {
+      this.showManualInstructions = true;
+    }
 
     // If permission is now granted, the observable will update automatically
     // and gpsPermissionDenied will become false, showing the dashboard

@@ -8,17 +8,45 @@
       </ion-card-subtitle>
     </ion-card-header>
     <ion-card-content class="ion-text-center">
-      <ion-text>
+      <ion-text *ngIf="!showManualInstructions">
         <p>Esta aplicación necesita acceso a tu ubicación GPS para funcionar correctamente.</p>
         <p>Haz clic en el botón de abajo para permitir el acceso a tu ubicación.</p>
       </ion-text>
+
       <ion-button
+        *ngIf="!showManualInstructions"
         expand="block"
         color="light"
         (click)="retryGpsPermission()"
         class="retry-permission-btn">
         Activar Ubicación
       </ion-button>
+
+      <!-- Manual instructions after permission denied -->
+      <div *ngIf="showManualInstructions" class="manual-instructions">
+        <ion-text color="danger">
+          <p><strong>⚠️ Permiso denegado</strong></p>
+          <p>El navegador ha bloqueado el acceso a tu ubicación. Para activarlo manualmente:</p>
+        </ion-text>
+
+        <ion-text>
+          <p class="instruction-title"><strong>📱 En este navegador:</strong></p>
+          <ol class="instruction-list">
+            <li>Toca el icono de <strong>candado 🔒</strong> o <strong>información ⓘ</strong> en la barra de direcciones</li>
+            <li>Busca la opción <strong>"Ubicación"</strong> o <strong>"Permisos del sitio"</strong></li>
+            <li>Cambia el permiso a <strong>"Permitir"</strong></li>
+            <li>Recarga la página</li>
+          </ol>
+        </ion-text>
+
+        <ion-button
+          expand="block"
+          color="medium"
+          (click)="showManualInstructions = false"
+          class="retry-permission-btn">
+          ⬅️ Volver
+        </ion-button>
+      </div>
     </ion-card-content>
   </ion-card>
 

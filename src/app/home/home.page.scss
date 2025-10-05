@@ -22,6 +22,25 @@ ion-content {
     margin-top: 20px;
     font-weight: bold;
   }
+
+  .manual-instructions {
+    text-align: left;
+
+    .instruction-title {
+      margin-top: 15px;
+      display: block;
+    }
+
+    .instruction-list {
+      margin: 10px 0;
+      padding-left: 20px;
+
+      li {
+        margin: 8px 0;
+        line-height: 1.6;
+      }
+    }
+  }
 }
 
 .dashboard-grid.hidden {
