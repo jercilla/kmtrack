@@ -44,6 +44,22 @@ export class GpsTrackingService {
 
   constructor() {}
 
+  // Check GPS permission without starting tracking
+  async checkGpsPermission(): Promise<void> {
+    if (!navigator.geolocation) {
+      this.gpsPermissionDeniedSubject.next(true);
+      return;
+    }
+
+    try {
+      const permission = await navigator.permissions.query({ name: 'geolocation' });
+      this.gpsPermissionDeniedSubject.next(permission.state === 'denied');
+    } catch (permError) {
+      // Permission API not supported, assume available
+      this.gpsPermissionDeniedSubject.next(false);
+    }
+  }
+
   async startTracking(): Promise<boolean> {
     try {
       // Check GPS permission first

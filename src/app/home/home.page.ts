@@ -56,6 +56,9 @@ export class HomePage implements OnInit, OnDestroy {
     // Update date every minute
     setInterval(() => this.updateCurrentDate(), 60000);
 
+    // Check GPS permission on page load
+    this.gpsService.checkGpsPermission();
+
     // Subscribe to all services
     this.subscription = combineLatest([
       this.kmService.entries$,
