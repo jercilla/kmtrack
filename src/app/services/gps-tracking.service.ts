@@ -46,57 +46,98 @@ export class GpsTrackingService {
 
   // Check GPS permission without starting tracking
   async checkGpsPermission(): Promise<void> {
+    console.log('GpsTrackingService: checkGpsPermission called');
+
     if (!navigator.geolocation) {
+      console.log('GpsTrackingService: Geolocation API not available');
       this.gpsPermissionDeniedSubject.next(true);
       return;
     }
 
-    try {
-      const permission = await navigator.permissions.query({ name: 'geolocation' });
+    // Try using Permissions API if available (desktop browsers)
+    if (navigator.permissions && navigator.permissions.query) {
+      try {
+        const permission = await navigator.permissions.query({ name: 'geolocation' });
+        console.log('GpsTrackingService: Permission state:', permission.state);
 
-      if (permission.state === 'denied') {
-        this.gpsPermissionDeniedSubject.next(true);
-      } else if (permission.state === 'granted') {
-        this.gpsPermissionDeniedSubject.next(false);
-      } else {
-        // State is 'prompt' - user hasn't decided yet
-        this.gpsPermissionDeniedSubject.next(false);
+        if (permission.state === 'denied') {
+          this.gpsPermissionDeniedSubject.next(true);
+        } else if (permission.state === 'granted') {
+          this.gpsPermissionDeniedSubject.next(false);
+        } else {
+          // State is 'prompt' - user hasn't decided yet
+          this.gpsPermissionDeniedSubject.next(false);
+        }
+        return;
+      } catch (permError) {
+        console.log('GpsTrackingService: Permissions API error, trying fallback');
       }
-    } catch (permError) {
-      // Permission API not supported, assume available
-      this.gpsPermissionDeniedSubject.next(false);
     }
+
+    // Fallback for mobile browsers (iOS Safari, older Android)
+    // Try to get position with a quick timeout
+    console.log('GpsTrackingService: Using fallback permission check');
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        console.log('GpsTrackingService: Fallback check - permission granted');
+        this.gpsPermissionDeniedSubject.next(false);
+      },
+      (error) => {
+        console.log('GpsTrackingService: Fallback check error:', error.code);
+        if (error.code === error.PERMISSION_DENIED) {
+          this.gpsPermissionDeniedSubject.next(true);
+        } else {
+          // For other errors, assume permission is available
+          this.gpsPermissionDeniedSubject.next(false);
+        }
+      },
+      {
+        enableHighAccuracy: false,
+        timeout: 5000,
+        maximumAge: Infinity // Use cached position if available
+      }
+    );
   }
 
   // Request GPS permission explicitly (triggers browser prompt)
   async requestGpsPermission(): Promise<boolean> {
+    console.log('GpsTrackingService: requestGpsPermission called');
+
     if (!navigator.geolocation) {
+      console.error('GpsTrackingService: navigator.geolocation not available');
       this.gpsPermissionDeniedSubject.next(true);
       return false;
     }
+
+    console.log('GpsTrackingService: Requesting geolocation permission...');
 
     return new Promise((resolve) => {
       // Requesting getCurrentPosition will trigger the browser's permission prompt
       navigator.geolocation.getCurrentPosition(
         (position) => {
           // Success - permission granted
+          console.log('GpsTrackingService: Permission GRANTED', position);
           this.gpsPermissionDeniedSubject.next(false);
           resolve(true);
         },
         (error) => {
           // Error - permission denied or error
+          console.error('GpsTrackingService: Permission error:', error.code, error.message);
+
           if (error.code === error.PERMISSION_DENIED) {
+            console.log('GpsTrackingService: Permission DENIED by user');
             this.gpsPermissionDeniedSubject.next(true);
             resolve(false);
           } else {
-            // Other error, but permission might be granted
+            // Other error (timeout, position unavailable, etc.)
+            console.log('GpsTrackingService: Other GPS error, checking permission state');
             this.checkGpsPermission();
             resolve(false);
           }
         },
         {
-          enableHighAccuracy: false,
-          timeout: 5000,
+          enableHighAccuracy: true,
+          timeout: 10000,
           maximumAge: 0
         }
       );

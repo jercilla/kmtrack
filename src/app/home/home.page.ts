@@ -143,8 +143,12 @@ export class HomePage implements OnInit, OnDestroy {
   }
 
   async retryGpsPermission() {
+    console.log('HomePage: retryGpsPermission button clicked');
+
     // Request GPS permission (will trigger browser prompt)
-    await this.gpsService.requestGpsPermission();
+    const granted = await this.gpsService.requestGpsPermission();
+
+    console.log('HomePage: Permission request result:', granted);
 
     // If permission is now granted, the observable will update automatically
     // and gpsPermissionDenied will become false, showing the dashboard
