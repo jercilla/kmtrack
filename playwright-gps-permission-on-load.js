@@ -60,24 +60,24 @@ const { chromium } = require('playwright');
 
   console.log('\n3. Checking if dashboard is hidden immediately...');
 
-  const dashboardGrid = page.locator('.dashboard-grid.hidden');
-  const isDashboardHidden = await dashboardGrid.count() > 0;
+  const dashboardGrid = page.locator('.dashboard-grid');
+  const dashboardExists = await dashboardGrid.count();
 
-  if (isDashboardHidden) {
+  if (dashboardExists === 0) {
     console.log('✅ Dashboard is hidden on load (correct behavior)');
   } else {
     console.log('❌ Dashboard is visible on load (should be hidden immediately when no GPS)');
   }
 
-  console.log('\n4. Verifying control button is not in recording state...');
+  console.log('\n4. Verifying control button does not exist...');
 
   const controlButton = page.locator('.control-button');
-  const hasRecordingClass = await controlButton.evaluate(el => el.classList.contains('recording'));
+  const buttonExists = await controlButton.count();
 
-  if (!hasRecordingClass) {
-    console.log('✅ Control button not recording (correct)');
+  if (buttonExists === 0) {
+    console.log('✅ Control button does not exist (correct)');
   } else {
-    console.log('❌ Control button in recording state (should not be)');
+    console.log('❌ Control button exists (should not exist when GPS denied)');
   }
 
   console.log('\n=== Test Complete ===');

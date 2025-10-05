@@ -38,13 +38,11 @@ describe('GPS Permission Check on Page Load', () => {
       .should('be.visible')
       .and('contain.text', 'Permiso de Ubicación')
 
-    // Dashboard should be hidden immediately
-    cy.get('.dashboard-grid')
-      .should('have.class', 'hidden')
+    // Dashboard should not exist in DOM (removed by *ngIf)
+    cy.get('.dashboard-grid').should('not.exist')
 
-    // Control button should NOT be in recording state
-    cy.get('.control-button')
-      .should('not.have.class', 'recording')
+    // Control button should not exist in DOM
+    cy.get('.control-button').should('not.exist')
   })
 
   it('should check GPS permissions on component initialization', () => {

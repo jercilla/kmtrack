@@ -15,7 +15,7 @@
     </ion-card-content>
   </ion-card>
 
-  <ion-grid class="dashboard-grid" [class.hidden]="gpsPermissionDenied">
+  <ion-grid class="dashboard-grid" *ngIf="!gpsPermissionDenied">
 
     <!-- 1. Date Display -->
     <ion-row class="ion-justify-content-center">

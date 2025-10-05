@@ -46,13 +46,9 @@ const { chromium } = require('playwright');
   console.log('=== Test: GPS Permission Denied ===\n');
 
   await page.goto('http://localhost:4200');
-  await page.waitForTimeout(2000);
+  await page.waitForTimeout(3000);
 
-  console.log('1. Clicking start button to trigger permission check...');
-  await page.locator('.control-button').click();
-  await page.waitForTimeout(1000);
-
-  console.log('\n2. Checking if permission warning is visible...');
+  console.log('1. Checking if permission warning is visible automatically...');
 
   // Should show permission warning
   const permissionWarning = page.locator('.gps-permission-warning');
@@ -65,27 +61,27 @@ const { chromium } = require('playwright');
     console.log('❌ Permission warning NOT found (expected to exist)');
   }
 
-  console.log('\n3. Checking if normal dashboard is hidden...');
+  console.log('\n2. Checking if normal dashboard is hidden...');
 
-  // Normal dashboard elements should be hidden or not functional
-  const dashboardGrid = page.locator('.dashboard-grid.hidden');
-  const isDashboardHidden = await dashboardGrid.count() > 0;
+  // Normal dashboard elements should not exist in DOM
+  const dashboardGrid = page.locator('.dashboard-grid');
+  const dashboardExists = await dashboardGrid.count();
 
-  if (isDashboardHidden) {
+  if (dashboardExists === 0) {
     console.log('✅ Dashboard is hidden (correct behavior)');
   } else {
     console.log('❌ Dashboard is visible (should be hidden when no GPS permission)');
   }
 
-  console.log('\n4. Checking that tracking did not start...');
+  console.log('\n3. Checking that control button does not exist...');
 
   const controlButton = page.locator('.control-button');
-  const hasRecordingClass = await controlButton.evaluate(el => el.classList.contains('recording'));
+  const buttonExists = await controlButton.count();
 
-  if (!hasRecordingClass) {
-    console.log('✅ Tracking did not start (correct behavior)');
+  if (buttonExists === 0) {
+    console.log('✅ Control button does not exist (correct behavior)');
   } else {
-    console.log('❌ Tracking started despite permission denied');
+    console.log('❌ Control button exists (should not exist when GPS denied)');
   }
 
   console.log('\n=== Test Complete ===');
