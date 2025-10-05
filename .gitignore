@@ -49,6 +49,7 @@ Thumbs.db
 platforms/
 plugins/
 www/
+typings/
 
 # Capacitor
 ios/
